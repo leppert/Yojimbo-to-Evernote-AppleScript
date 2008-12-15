@@ -32,6 +32,9 @@ This is currently turned on, but can be disabled by changing the two values belo
 *)
 property doPasswords : true
 property doEncryptedNotes : true
+property separateFolders : true
+property addTypeTags : true
+property maxTitleLength : 255
 
 (*
 TODO:
@@ -62,65 +65,101 @@ tell application "Yojimbo"
 	set ywebs to every web archive item
 	
 	repeat with yimg in yimages
+		if separateFolders then set tNotebook to "Yojimbo Images"
 		-- write image to a file
 		set fname to "tmpimage.jpg"
 		set tmpFile to homeDir & fname
 		set efile to (export yimg to file tmpFile)
-		set yimgTitle to name of yimg
-		set yimgMod to modification date of yimg
+		set bTitle to name of yimg
+		set bMod to modification date of yimg
+		set bCreate to creation date of yimg
 		set yimgTags to tags of yimg
+		
+		-- title
+		if bTitle is not missing value and length of bTitle > maxTitleLength then
+			set bTitle to (get texts 1 through (maxTitleLength - 3) of bTitle) & "..."
+		end if
+		
+		-- tags
 		set ytags to {}
 		repeat with t in yimgTags
 			copy the name of t as string to the end of ytags
 		end repeat
+		if addTypeTags then copy "image" as string to the end of ytags
 		tell application "Evernote"
-			create note from file efile title yimgTitle created yimgMod notebook tNotebook tags ytags
+			create note from file efile title bTitle created bCreate notebook tNotebook tags ytags
 		end tell
 		-- delete the image file here, stupid.
 	end repeat
 	
 	repeat with ybk in ybkmks
+		if separateFolders then set tNotebook to "Yojimbo Bookmarks"
 		set bLoc to location of ybk
 		set bTitle to name of ybk
 		set bMod to modification date of ybk
+		set bCreate to creation date of ybk
 		set bTags to tags of ybk
 		if comments of ybk is not missing value then
-			set bTxt to comments of ybk
+			set nBody to comments of ybk
 		else
-			set bTxt to location of ybk
+			-- set nBody to location of ybk
 		end if
+		
+		-- title
+		if bTitle is not missing value and length of bTitle > maxTitleLength then
+			set nBody to "Full title: " & bTitle & return & return & nBody
+			set bTitle to (get texts 1 through (maxTitleLength - 3) of bTitle) & "..."
+		end if
+		
+		-- tags
 		set eTags to {}
 		repeat with t in bTags
 			copy the name of t as string to the end of eTags
 		end repeat
+		if addTypeTags then copy "bookmark" as string to the end of eTags
+		
 		tell application "Evernote"
-			set cNote to (create note with text bTxt title bTitle created bMod tags eTags notebook tNotebook)
+			set cNote to (create note with text nBody title bTitle created bCreate tags eTags notebook tNotebook)
 			set source URL of cNote to bLoc
 		end tell
 	end repeat
 	
 	repeat with ynt in ynotes
-		if doEncryptedNotes and ynt is encrypted then
-			set bTitle to name of ynt
-			set bMod to modification date of ynt
-			set nTags to tags of ynt
-			set nProps to the properties of ynt
-			set nBody to contents of nProps
-			set fTags to {}
-			repeat with tg in nTags
-				copy the name of tg as string to the end of fTags
-			end repeat
-			log fTags
-			tell application "Evernote"
-				-- create note with text bTxt title bTitle created bMod  notebook tNotebook
-				create note with text nBody title bTitle created bMod tags fTags notebook tNotebook
-			end tell
+		if separateFolders then set tNotebook to "Yojimbo Notes"
+		(*	if doEncryptedNotes and ynt is encrypted then *)
+		set bTitle to name of ynt
+		set bMod to modification date of ynt
+		set bCreate to creation date of ynt
+		set nTags to tags of ynt
+		set nProps to the properties of ynt
+		set nBody to contents of nProps
+		
+		-- title
+		if bTitle is not missing value and length of bTitle > maxTitleLength then
+			set nBody to "Full title: " & bTitle & return & return & nBody
+			set bTitle to (get texts 1 through (maxTitleLength - 3) of bTitle) & "..."
 		end if
+		
+		-- tags
+		set fTags to {}
+		repeat with tg in nTags
+			copy the name of tg as string to the end of fTags
+		end repeat
+		if addTypeTags then copy "note" as string to the end of fTags
+		log fTags
+		
+		tell application "Evernote"
+			-- create note with text bTxt title bTitle created bCreate  notebook tNotebook
+			create note with text nBody title bTitle created bCreate tags fTags notebook tNotebook
+		end tell
+		(*	end if *)
 	end repeat
 	
 	repeat with ypwd in ypwds
+		if separateFolders then set tNotebook to "Yojimbo Passwords"
 		set bTitle to name of ypwd
 		set bMod to modification date of ypwd
+		set bCreate to creation date of ypwd
 		set nTags to tags of ypwd
 		set nProps to the properties of ypwd
 		set nLocation to the location of ypwd
@@ -146,36 +185,56 @@ tell application "Yojimbo"
 		
 		set nBody to (nBody & return & "Password: " & nPass)
 		
+		-- title
+		if bTitle is not missing value and length of bTitle > maxTitleLength then
+			set nBody to "Full title: " & bTitle & return & return & nBody
+			set bTitle to (get texts 1 through (maxTitleLength - 3) of bTitle) & "..."
+		end if
+		
+		-- tags
 		set fTags to {}
 		repeat with tg in nTags
 			copy the name of tg as string to the end of fTags
 		end repeat
+		if addTypeTags then copy "password" as string to the end of fTags
 		
 		tell application "Evernote"
-			create note with text nBody title bTitle created bMod tags fTags notebook tNotebook
+			create note with text nBody title bTitle created bCreate tags fTags notebook tNotebook
 		end tell
 	end repeat
 	
 	repeat with ypdf in ypdfs
+		if separateFolders then set tNotebook to "Yojimbo PDFs"
 		set fname to "tmpdoc.pdf"
 		set tmpFile to homeDir & fname
 		set efile to (export ypdf to file tmpFile)
-		set ypdfTitle to name of ypdf
-		set ypdfMod to modification date of ypdf
+		set bTitle to name of ypdf
+		set bMod to modification date of ypdf
+		set bCreate to creation date of ypdf
 		set ypdfTags to tags of ypdf
+		
+		-- title
+		if bTitle is not missing value and length of bTitle > maxTitleLength then
+			set bTitle to (get texts 1 through (maxTitleLength - 3) of bTitle) & "..."
+		end if
+		
+		-- tags
 		set ptags to {}
 		repeat with t in ypdfTags
 			copy the name of t as string to the end of ptags
 		end repeat
+		if addTypeTags then copy "pdf" as string to the end of ptags
 		tell application "Evernote"
-			create note from file efile title ypdfTitle created ypdfMod notebook tNotebook tags ptags
+			create note from file efile title bTitle created bCreate notebook tNotebook tags ptags
 		end tell
 		-- delete the pdf
 	end repeat
 	
 	repeat with yserial in yserials
+		if separateFolders then set tNotebook to "Yojimbo Serial Numbers"
 		set bTitle to name of yserial
 		set bMod to modification date of yserial
+		set bCreate to creation date of yserial
 		set nTags to tags of yserial
 		set nProps to the properties of yserial
 		set nOwner to the owner name of yserial
@@ -195,30 +254,52 @@ tell application "Yojimbo"
 		if nSerial is not missing value and nSerial is not "" then
 			set nBody to nBody & "Serial Number: " & nSerial & return
 		end if
+		
+		-- title
+		if bTitle is not missing value and length of bTitle > maxTitleLength then
+			set nBody to "Full title: " & bTitle & return & return & nBody
+			set bTitle to (get texts 1 through (maxTitleLength - 3) of bTitle) & "..."
+		end if
+		
+		-- tags
 		set fTags to {}
 		repeat with tg in nTags
 			copy the name of tg as string to the end of fTags
 		end repeat
+		if addTypeTags then copy "serial number" as string to the end of fTags
+		
 		tell application "Evernote"
-			create note with text nBody title bTitle created bMod tags fTags notebook tNotebook
+			create note with text nBody title bTitle created bCreate tags fTags notebook tNotebook
 		end tell
 	end repeat
-	
+	(*
 	repeat with yweb in ywebs
+		if separateFolders then set tNotebook to "Yojimbo Web Archives"
 		set bTitle to name of yweb
 		set bMod to modification date of yweb
+		set bCreate to creation date of yweb
 		set nTags to tags of yweb
 		set nProps to the properties of yweb
 		set nSource to the source URL of yweb
 		set nBody to the source URL of nProps
+		
+		-- title
+		if bTitle is not missing value and length of bTitle > maxTitleLength then
+			set bTitle to (get texts 1 through (maxTitleLength - 3) of bTitle) & "..."
+		end if
+		
+		-- tags
 		set fTags to {}
 		repeat with tg in nTags
 			copy the name of tg as string to the end of fTags
 		end repeat
-		tell application "Evernote"
-			create note from url nSource title bTitle created bMod tags fTags notebook tNotebook
-		end tell
+		if addTypeTags then copy "web archive" as string to the end of fTags
 		
+		tell application "Evernote"
+			create note from url nSource title bTitle created bCreate tags fTags notebook tNotebook
+		end tell
+
 	end repeat
+	*)
 end tell
 
