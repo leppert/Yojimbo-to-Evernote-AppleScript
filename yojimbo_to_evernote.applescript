@@ -7,6 +7,9 @@ Imports all database items from Yojimbo into Evernote
 - Preserves tags and creation dates
 - Imports all items into a new notebook called "Yojimbo Items"
 
+NOTE FROM GREG:
+You'll want to empty your Yojimbo trash before running this script because it will import the notes from within there.
+
 *** THIS SCRIPT IS GOING TO CREATE A TON OF FILES IN YOUR HOME DIRECTORY ***
 They will all have similar names starting with "tmp", so they'll be easy to delete
 once this thing is done.  I'm just as unhappy about this as you are, believe me.
@@ -34,6 +37,7 @@ property doPasswords : true
 property doEncryptedNotes : true
 property separateFolders : true
 property addTypeTags : true
+property addYojimboTag : true
 property maxTitleLength : 255
 
 (*
@@ -85,6 +89,7 @@ tell application "Yojimbo"
 		repeat with t in yimgTags
 			copy the name of t as string to the end of ytags
 		end repeat
+		if addYojimboTag then copy "Yojimbo" as string to the end of ytags
 		if addTypeTags then copy "image" as string to the end of ytags
 		tell application "Evernote"
 			create note from file efile title bTitle created bCreate notebook tNotebook tags ytags
@@ -102,6 +107,7 @@ tell application "Yojimbo"
 		if comments of ybk is not missing value then
 			set nBody to comments of ybk
 		else
+			set nBody to ""
 			-- set nBody to location of ybk
 		end if
 		
@@ -116,6 +122,7 @@ tell application "Yojimbo"
 		repeat with t in bTags
 			copy the name of t as string to the end of eTags
 		end repeat
+		if addYojimboTag then copy "Yojimbo" as string to the end of eTags
 		if addTypeTags then copy "bookmark" as string to the end of eTags
 		
 		tell application "Evernote"
@@ -134,8 +141,12 @@ tell application "Yojimbo"
 		set nProps to the properties of ynt
 		set nBody to contents of nProps
 		
+		--body
+		if nBody is missing value then set nBody to ""
+		
 		-- title
-		if bTitle is not missing value and length of bTitle > maxTitleLength then
+		if bTitle is missing value then set bTitle to ""
+		if length of bTitle > maxTitleLength then
 			set nBody to "Full title: " & bTitle & return & return & nBody
 			set bTitle to (get texts 1 through (maxTitleLength - 3) of bTitle) & "..."
 		end if
@@ -145,6 +156,7 @@ tell application "Yojimbo"
 		repeat with tg in nTags
 			copy the name of tg as string to the end of fTags
 		end repeat
+		if addYojimboTag then copy "Yojimbo" as string to the end of fTags
 		if addTypeTags then copy "note" as string to the end of fTags
 		log fTags
 		
@@ -196,6 +208,7 @@ tell application "Yojimbo"
 		repeat with tg in nTags
 			copy the name of tg as string to the end of fTags
 		end repeat
+		if addYojimboTag then copy "Yojimbo" as string to the end of fTags
 		if addTypeTags then copy "password" as string to the end of fTags
 		
 		tell application "Evernote"
@@ -223,6 +236,7 @@ tell application "Yojimbo"
 		repeat with t in ypdfTags
 			copy the name of t as string to the end of ptags
 		end repeat
+		if addYojimboTag then copy "Yojimbo" as string to the end of ptags
 		if addTypeTags then copy "pdf" as string to the end of ptags
 		tell application "Evernote"
 			create note from file efile title bTitle created bCreate notebook tNotebook tags ptags
@@ -266,12 +280,14 @@ tell application "Yojimbo"
 		repeat with tg in nTags
 			copy the name of tg as string to the end of fTags
 		end repeat
+		if addYojimboTag then copy "Yojimbo" as string to the end of fTags
 		if addTypeTags then copy "serial number" as string to the end of fTags
 		
 		tell application "Evernote"
 			create note with text nBody title bTitle created bCreate tags fTags notebook tNotebook
 		end tell
 	end repeat
+	
 	(*
 	repeat with yweb in ywebs
 		if separateFolders then set tNotebook to "Yojimbo Web Archives"
@@ -293,6 +309,7 @@ tell application "Yojimbo"
 		repeat with tg in nTags
 			copy the name of tg as string to the end of fTags
 		end repeat
+		if addYojimboTag then copy "Yojimbo" as string to the end of fTags
 		if addTypeTags then copy "web archive" as string to the end of fTags
 		
 		tell application "Evernote"
