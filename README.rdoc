@@ -1,0 +1,49 @@
+= Yojimbo to Evernote Import / Migration AppleScript
+
+== Description
+
+Imports all database items from Yojimbo into Evernote
+- Preserves tags and creation dates
+- Imports all items into a new notebook called "Yojimbo Items"
+
+== Usage
+
+=== Web Archive Items
+
+Since Yojimbo doesn't expose the actual contents of web archives (the HTML, etc.), this script
+will re-clip the current content from the source URL of the web archive.  This is very likely to 
+produce unexpected results if the archived site no longer exists, for example.  YMMV.
+
+=== Password Protected Items
+
+To allow passwords and encrypted items to be imported into Evernote, you need to modify the security settings in Yojimbo:
+Go to Preferences -> Security and check the "Accessing password items from scripts" and
+"Accessing encrypted items from scripts" under the "Allow Yojimbo to use the Keychain when:" section.
+Please know that allowing this sort of access is extremely unsecure and will likely result 
+in the loss of your favorite shirt.  Data that is encrypted in Yojimbo will *not* be encrypted
+once it is added to Evernote.
+
+This is currently turned on, but can be disabled by changing the properties
++doPasswords+ and +doEncryptedNotes+ to +false+ at the top of the script.
+
+=== Note
+
+You'll want to empty your Yojimbo trash before running this script otherwise the items therein will be imported as well.
+
+=== Warnings
+
+- There is virtually *no* error checking in this application, currently.
+- It is recommended that you back up all Evernote and Yojimbo data before running this script.
+- Unfortunately, THIS SCRIPT WILL CREATE A WEALTH OF FILES IN YOUR HOME DIRECTORY, prefixed with "tmp"
+to aid in manual deletion (by you, the user) after the script has complete. A more elegant solution
+to handling these temporary files is being investigated and any patches would be welcomed.
+
+== TODO:
+- Factor out duplicated code
+- Move individual note type handling code into discrete routines
+- Check for existence of target Evernote notebook, use another if exists
+- Remove all temp files created.
+- Error checking on I/O operations
+
+== Credits
+Based on a script by Brett Kelly - brett@brettkelly.org

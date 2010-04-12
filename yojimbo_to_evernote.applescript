@@ -1,54 +1,9 @@
-(*
-Import Yojimbo items into Evernote
-Author: Brett Kelly - brett@brettkelly.org
-Version: 0.1
-
-Imports all database items from Yojimbo into Evernote
-- Preserves tags and creation dates
-- Imports all items into a new notebook called "Yojimbo Items"
-
-NOTE FROM GREG:
-You'll want to empty your Yojimbo trash before running this script because it will import the notes from within there.
-
-*** THIS SCRIPT IS GOING TO CREATE A TON OF FILES IN YOUR HOME DIRECTORY ***
-They will all have similar names starting with "tmp", so they'll be easy to delete
-once this thing is done.  I'm just as unhappy about this as you are, believe me.
-I'm looking for a more elegant way to handle this, but AS's handling of 
-files and directories is freaking *weird*.
-
-For Web Archive Items:
-
-- Since Yojimbo doesn't expose the actual contents of web archives (the HTML, etc.), this script
-will re-clip the current content from the source URL of the web archive.  This is very likely to 
-produce unexpected results if the archived site no longer exists, for example.  YMMV.
-
-There is virtually *no* error checking in this application, currently.  It is not destructive to your Yojimbo data.
-
-To allow passwords and encrypted items to be imported into Evernote, you need to modify the security settings in Yojimbo:
-Go to Preferences -> Security and check the "Accessing password items from scripts" and
-"Accessing encrypted items from scripts" under the "Allow Yojimbo to use the Keychain when:" section.
-Please know that allowing this sort of access is extremely unsecure and will likely result 
-in the loss of your favorite shirt.  Data that is encrypted in Yojimbo will *not* be encrypted
-once it is added to Evernote.
-
-This is currently turned on, but can be disabled by changing the two values below to "false"
-*)
-property doPasswords : true
+property doPasswords : true -- set to doPasswords and doEncryptedNotes to false disable import of password protected notes
 property doEncryptedNotes : true
 property separateFolders : true
 property addTypeTags : true
 property addYojimboTag : true
 property maxTitleLength : 255
-
-(*
-TODO:
-- Factor out all of the fugly duplicate code
-- Move individual note type handling code into discrete routines
-- Check for existence of target Evernote notebook, use another if exists
-- Remove all temp files created.
-- Error checking on I/O operations
-- 
-*)
 
 set homeDir to ((get path to home folder) as string)
 property tNotebook : "Yojimbo Items"
@@ -56,7 +11,6 @@ property altNotebook : "Yojimbo Import"
 
 tell application "Evernote"
 	-- this is where we'd make sure the notebook didn't already exist
-	-- if we didn't totally suck at applescript
 end tell
 
 tell application "Yojimbo"
@@ -288,7 +242,6 @@ tell application "Yojimbo"
 		end tell
 	end repeat
 	
-	(*
 	repeat with yweb in ywebs
 		if separateFolders then set tNotebook to "Yojimbo Web Archives"
 		set bTitle to name of yweb
@@ -317,6 +270,6 @@ tell application "Yojimbo"
 		end tell
 
 	end repeat
-	*)
+
 end tell
 
