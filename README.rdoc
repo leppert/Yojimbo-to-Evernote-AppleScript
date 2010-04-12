@@ -8,8 +8,7 @@ Imports all database items from Yojimbo into an Evernote notebook entitled "Yoji
 
 === BACK UP YOUR DATA FOR BOTH YOJIMBO AND EVERNOTE BEFORE RUNNING THIS SCRIPT
 - This script comes with no guarantees and should be treated as mildly hostile.
-- It has *NOT* been tested against recent versions of Yojimbo or Evernote.
-- The last noted tests of this script were run in December of 2008 against what was then the most current versions of both applications.
+- It has *NOT* been tested against recent versions of Yojimbo or Evernote. The last noted tests of this script were run in December of 2008 against what was then the most current versions of both applications.
 - At present, there is virtually *no* error checking in this application.
 - Unfortunately, THIS SCRIPT WILL CREATE A WEALTH OF FILES IN YOUR HOME DIRECTORY, prefixed with "tmp" to aid in manual deletion (by you, the user) after the script has completed. A more elegant solution to handling these temporary files is being investigated and any patches would be welcomed.
 
